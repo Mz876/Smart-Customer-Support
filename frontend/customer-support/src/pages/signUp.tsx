@@ -1,25 +1,27 @@
-
-import React, { useState } from 'react';
+// SignUpPage.tsx
+import React, { useState, type ChangeEvent, type FormEvent } from 'react';
 import { EnvelopeSimple, Lock, Eye, EyeSlash, UserCircle } from 'phosphor-react';
 
+type UsernameStatus = '' | 'checking' | 'available' | 'taken';
+
 export default function SignUpPage() {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState<string>('');
+  const [lastName, setLastName] = useState<string>('');
+  const [username, setUsername] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [usernameStatus, setUsernameStatus] = useState(''); // '', 'checking', 'available', 'taken'
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+  const [success, setSuccess] = useState<string>('');
+  const [usernameStatus, setUsernameStatus] = useState<UsernameStatus>(''); // '', 'checking', 'available', 'taken'
 
-  function simpleEmailValid(e) {
-    return e && e.includes('@') && e.includes('.');
+  function simpleEmailValid(e: string): boolean {
+    return e.includes('@') && e.includes('.');
   }
 
-  function validate() {
+  function validate(): string {
     if (!firstName.trim()) return 'First name is required';
     if (!lastName.trim()) return 'Last name is required';
     if (!username.trim()) return 'Username is required';
@@ -31,45 +33,41 @@ export default function SignUpPage() {
     return '';
   }
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError('');
     setSuccess('');
     const v = validate();
     if (v) return setError(v);
 
-    // if username check flagged as taken, prevent submission
     if (usernameStatus === 'taken') return setError('Username is already taken');
 
     try {
       setLoading(true);
-      // simulate network register call
       await new Promise((res) => setTimeout(res, 900));
       setSuccess('Account created! Check your email to verify.');
-      // reset form (optional)
+      // reset form
       setFirstName('');
       setLastName('');
       setUsername('');
       setEmail('');
       setPassword('');
       setUsernameStatus('');
-    } catch (err) {
+    } catch {
       setError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
   }
 
-  // stub: fake username availability check
-  function checkUsername(name) {
+  function checkUsername(name: string) {
     if (!name || name.trim().length < 3) {
       setUsernameStatus('');
       return;
     }
     setUsernameStatus('checking');
-    // simulate async check
+
     setTimeout(() => {
-      // mark "taken" for a couple of example usernames
       const taken = ['admin', 'user', 'test'];
       if (taken.includes(name.toLowerCase())) setUsernameStatus('taken');
       else setUsernameStatus('available');
@@ -96,7 +94,7 @@ export default function SignUpPage() {
               id="firstName"
               name="firstName"
               value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)}
               className="mt-1 block w-full rounded-lg border border-slate-200 px-3 py-2 focus:border-orange-300 focus:ring-2 focus:ring-orange-100"
               placeholder="Jane"
             />
@@ -108,7 +106,7 @@ export default function SignUpPage() {
               id="lastName"
               name="lastName"
               value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setLastName(e.target.value)}
               className="mt-1 block w-full rounded-lg border border-slate-200 px-3 py-2 focus:border-orange-300 focus:ring-2 focus:ring-orange-100"
               placeholder="Doe"
             />
@@ -121,7 +119,7 @@ export default function SignUpPage() {
                 id="username"
                 name="username"
                 value={username}
-                onChange={(e) => {
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
                   setUsername(e.target.value);
                   checkUsername(e.target.value);
                 }}
@@ -148,7 +146,7 @@ export default function SignUpPage() {
                 name="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 className="block w-full pl-10 rounded-lg border border-slate-200 px-3 py-2 focus:border-orange-300 focus:ring-2 focus:ring-orange-100"
                 placeholder="you@company.com"
               />
@@ -166,7 +164,7 @@ export default function SignUpPage() {
                 name="password"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                 className="block w-full pl-10 pr-10 rounded-lg border border-slate-200 px-3 py-2 focus:border-orange-300 focus:ring-2 focus:ring-orange-100"
                 placeholder="At least 8 characters"
               />
@@ -196,11 +194,15 @@ export default function SignUpPage() {
               {loading ? 'Creating account…' : 'Create account'}
             </button>
 
-            <div className="mt-4 text-center text-sm text-slate-600">Already have an account? <a href="#" className="text-orange-600 font-medium hover:underline">Sign in</a></div>
+            <div className="mt-4 text-center text-sm text-slate-600">
+              Already have an account? <a href="#" className="text-orange-600 font-medium hover:underline">Sign in</a>
+            </div>
           </div>
         </form>
 
-        <div className="mt-6 text-xs text-slate-400 text-center">By creating an account you agree to our Terms and Privacy Policy.</div>
+        <div className="mt-6 text-xs text-slate-400 text-center">
+          By creating an account you agree to our Terms and Privacy Policy.
+        </div>
       </div>
     </div>
   );

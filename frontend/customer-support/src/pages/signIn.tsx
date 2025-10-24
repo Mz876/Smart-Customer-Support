@@ -1,6 +1,5 @@
-
-
-import React, { useState } from 'react';
+// SignInPage.tsx
+import React, { useState, type FormEvent, type ChangeEvent } from 'react';
 import {
   EnvelopeSimple,
   Lock,
@@ -11,22 +10,21 @@ import {
 } from 'phosphor-react';
 
 export default function SignInPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
 
-  function validate() {
+  function validate(): string {
     if (!email) return 'Email is required';
-    // basic email check (simple heuristic to avoid complex regex)
     if (!email.includes('@') || !email.includes('.')) return 'Enter a valid email';
     if (!password) return 'Password is required';
     if (password.length < 6) return 'Password must be at least 6 characters';
     return '';
   }
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError('');
     const v = validate();
@@ -34,15 +32,21 @@ export default function SignInPage() {
 
     try {
       setLoading(true);
-      // Simulate network request
       await new Promise((res) => setTimeout(res, 700));
-      // TODO: replace with real auth call
       alert(`Signed in as ${email}`);
     } catch (err) {
       setError('Something went wrong. Try again.');
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleEmailChange(e: ChangeEvent<HTMLInputElement>) {
+    setEmail(e.target.value);
+  }
+
+  function handlePasswordChange(e: ChangeEvent<HTMLInputElement>) {
+    setPassword(e.target.value);
   }
 
   return (
@@ -62,7 +66,10 @@ export default function SignInPage() {
 
           <div className="mt-3 text-slate-700">
             <h4 className="text-lg font-medium">Fast, friendly, and warm</h4>
-            <p className="text-sm mt-2">This sign-in flow uses a light orange theme with subtle depth and accessible controls. Fully responsive and ready to plug into your auth provider.</p>
+            <p className="text-sm mt-2">
+              This sign-in flow uses a light orange theme with subtle depth and accessible controls.
+              Fully responsive and ready to plug into your auth provider.
+            </p>
           </div>
 
           <ul className="space-y-2 text-sm text-slate-600 mt-4">
@@ -92,7 +99,7 @@ export default function SignInPage() {
                   type="email"
                   autoComplete="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleEmailChange}
                   className="block w-full pl-10 pr-3 py-2 rounded-lg border border-slate-200 focus:border-orange-300 focus:ring-2 focus:ring-orange-100 focus:outline-none"
                   placeholder="you@company.com"
                 />
@@ -110,7 +117,7 @@ export default function SignInPage() {
                   name="password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={handlePasswordChange}
                   autoComplete="current-password"
                   className="block w-full pl-10 pr-10 py-2 rounded-lg border border-slate-200 focus:border-orange-300 focus:ring-2 focus:ring-orange-100 focus:outline-none"
                   placeholder="Your secure password"
@@ -151,10 +158,7 @@ export default function SignInPage() {
             <div className="pt-1">
               <button
                 type="button"
-                onClick={() => {
-                  // placeholder for social login handler
-                  alert('Sign in with Google (stub)');
-                }}
+                onClick={() => alert('Sign in with Google (stub)')}
                 className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50"
               >
                 <GoogleLogo size={18} weight="duotone" className="text-orange-500" />
