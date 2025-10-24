@@ -9,7 +9,7 @@ export default function Routings() {
     <Router>
       <Routes>
         <Route path="/profile" element={<ProfilePage />} />
-        <Route path='/panel' element={<ConversationPanel />} />
+        <Route path='/' element={<ConversationPanel />} />
         <Route path="/signin" element={<SignInPage />} />
         <Route path="/signup" element={<SignUpPage />} />
       </Routes>
