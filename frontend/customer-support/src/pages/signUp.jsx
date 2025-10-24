@@ -1,19 +1,3 @@
-/*
-SignUpPage.jsx
-React + Tailwind + phosphor-react
-
-Collects: First name, Last name, Username, Email, Password
-Theme: Light orange
-
-Usage:
-1) Ensure TailwindCSS is configured in your project.
-2) Install deps: npm install phosphor-react
-3) Import and use: import SignUpPage from './SignUpPage';
-
-Notes:
-- This is a single-file, responsive component ready to plug into your auth flow.
-- Replace the stubbed network calls with your real backend or auth provider.
-*/
 
 import React, { useState } from 'react';
 import { EnvelopeSimple, Lock, Eye, EyeSlash, UserCircle } from 'phosphor-react';
