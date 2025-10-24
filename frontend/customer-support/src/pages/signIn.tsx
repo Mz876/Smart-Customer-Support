@@ -51,33 +51,7 @@ export default function SignInPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-orange-50 p-6">
-      <div className="max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-        {/* Left - branding / promo */}
-        <div className="hidden md:flex flex-col justify-center gap-6 p-8 rounded-2xl shadow-lg bg-white/60 backdrop-blur-md">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-200 to-orange-400 flex items-center justify-center shadow-inner">
-              <UserCircle size={28} weight="duotone" className="text-orange-700" />
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold text-orange-700">Welcome back</h3>
-              <p className="text-sm text-slate-600">Sign in to continue to your dashboard</p>
-            </div>
-          </div>
-
-          <div className="mt-3 text-slate-700">
-            <h4 className="text-lg font-medium">Fast, friendly, and warm</h4>
-            <p className="text-sm mt-2">
-              This sign-in flow uses a light orange theme with subtle depth and accessible controls.
-              Fully responsive and ready to plug into your auth provider.
-            </p>
-          </div>
-
-          <ul className="space-y-2 text-sm text-slate-600 mt-4">
-            <li>• Accessible form controls</li>
-            <li>• Keyboard-friendly and responsive</li>
-            <li>• Easy to customize colors & branding</li>
-          </ul>
-        </div>
+         
 
         {/* Right - form card */}
         <div className="bg-white rounded-2xl shadow-2xl p-6 md:p-10">
@@ -167,13 +141,12 @@ export default function SignInPage() {
             </div>
 
             <div className="text-center text-sm text-slate-600 mt-3">
-              Don't have an account? <a href="#" className="text-orange-600 font-medium hover:underline">Create one</a>
+              Don't have an account? <a href="/signup" className="text-orange-600 font-medium hover:underline">Create one</a>
             </div>
           </form>
 
           <div className="mt-6 text-xs text-slate-400 text-center">By continuing, you agree to our Terms and Privacy Policy.</div>
         </div>
       </div>
-    </div>
-  );
+   );
 }
