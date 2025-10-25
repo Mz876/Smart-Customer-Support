@@ -1,0 +1,19 @@
+{
+    "name": "itech/chatbot",
+    "description": "Async chatbot server with ReactPhp",
+    "autoload": {
+        "psr-4": {
+            "Itech\\Chatbot\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "mustafa"
+        }
+    ],
+    "require": {
+        "react/http": "^1.11",
+        "react/mysql": "^0.6.0",
+        "clue/buzz-react": "^2.9"
+    }
+}

@@ -9,7 +9,6 @@ export default function Routings() {
     <Router>
       <Routes>
         <Route path="/" element={<Navigate to="/signin" replace />} />
-
         <Route path="/signin" element={<SignInPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path='/panel' element={<ConversationPanel />} />
