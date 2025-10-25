@@ -1,10 +1,14 @@
 // SignUpPage.tsx
 import React, { useState, type ChangeEvent, type FormEvent } from 'react';
 import { EnvelopeSimple, Lock, Eye, EyeSlash, UserCircle } from 'phosphor-react';
+import { useNavigate } from 'react-router-dom';
 
 type UsernameStatus = '' | 'checking' | 'available' | 'taken';
 
 export default function SignUpPage() {
+
+  const navigate = useNavigate();
+
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
   const [username, setUsername] = useState<string>('');
@@ -44,9 +48,20 @@ export default function SignUpPage() {
 
     try {
       setLoading(true);
-      await new Promise((res) => setTimeout(res, 900));
-      setSuccess('Account created! Check your email to verify.');
-      // reset form
+
+      const response = await fetch('http://localhost/project/backend/apis/auth/register.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ firstName, lastName, username, email, password }),
+      });
+
+      console.log("Response:", response);
+
+      if(response.ok){
+        navigate('/');
+      }
+
+        // reset form
       setFirstName('');
       setLastName('');
       setUsername('');

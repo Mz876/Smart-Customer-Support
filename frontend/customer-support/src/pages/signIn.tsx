@@ -8,6 +8,7 @@ import {
   UserCircle,
   GoogleLogo,
 } from 'phosphor-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function SignInPage() {
   const [email, setEmail] = useState<string>('');
@@ -15,6 +16,8 @@ export default function SignInPage() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const navigate = useNavigate();
+
 
   function validate(): string {
     if (!email) return 'Email is required';
@@ -32,9 +35,20 @@ export default function SignInPage() {
 
     try {
       setLoading(true);
-      await new Promise((res) => setTimeout(res, 700));
-      alert(`Signed in as ${email}`);
-    } catch (err) {
+
+      const response = await fetch('http://localhost/project/backend/apis/auth/login.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if(response.ok) {
+
+        navigate('/panel');
+
+      }
+
+      } catch (err) {
       setError('Something went wrong. Try again.');
     } finally {
       setLoading(false);
