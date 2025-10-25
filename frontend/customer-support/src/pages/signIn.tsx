@@ -27,33 +27,44 @@ export default function SignInPage() {
     return '';
   }
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError('');
-    const v = validate();
-    if (v) return setError(v);
+ async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  e.preventDefault();
+  setError('');
+  const v = validate();
+  if (v) return setError(v);
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      const response = await fetch('http://localhost/project/backend/apis/auth/login.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+    const response = await fetch('http://localhost/project/backend/apis/auth/login.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
 
-      if(response.ok) {
+ 
+    const data = await response.json();
 
-        navigate('/panel');
+    if (!response.ok || !data.success) {
 
-      }
-
-      } catch (err) {
-      setError('Something went wrong. Try again.');
-    } finally {
-      setLoading(false);
+      console.log("Error data:", data);
+      console.log(response);
+ 
+      setError(data.message || 'Invalid credentials');
+      return;
     }
+
+  
+    navigate(`/panel?userId=${encodeURIComponent(data.userId)}`);
+
+  } catch (err) {
+    console.error(err);
+    setError('Something went wrong. Try again.');
+  } finally {
+    setLoading(false);
   }
+}
+
 
   function handleEmailChange(e: ChangeEvent<HTMLInputElement>) {
     setEmail(e.target.value);

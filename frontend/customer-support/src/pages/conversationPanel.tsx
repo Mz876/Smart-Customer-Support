@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, type ChangeEvent,type FormEvent } from 'react';
 import { PlusCircle, Trash, Gear, PaperPlaneRight, CaretLeft, CaretRight, MagnifyingGlass } from 'phosphor-react';
+import { useSearchParams } from 'react-router-dom';
+
 
 interface Message {
   id: string;
@@ -16,6 +18,11 @@ interface Conversation {
 }
 
 export default function ChatPanel() {
+
+  const [searchParams] = useSearchParams();
+  const userId = searchParams.get('userId'); // string | null
+
+
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [input, setInput] = useState('');
@@ -61,11 +68,16 @@ export default function ChatPanel() {
     setConversations(cvs => cvs.map(c => c.id === activeId ? { ...c, messages: [...c.messages, userMsg], lastUpdated: Date.now() } : c));
     setInput('');
 
+    const payload = {
+  message: userMsg.text,
+  user_id: userId ? Number(userId) : null
+};
+
     try {
       const res = await fetch('http://127.0.0.1:8080', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMsg.text })
+         body: JSON.stringify(payload)
       });
       const data = await res.json();
       const agentMsg: Message = { id: `m-${Date.now()}-r`, sender: 'agent', text: data.reply, time: Date.now() };
