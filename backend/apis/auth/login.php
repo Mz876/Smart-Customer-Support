@@ -39,7 +39,7 @@ $result = mysqli_stmt_get_result($stmt);
 // Check if user exists
 if ($user = mysqli_fetch_assoc($result)) {
     // Verify hashed password
-    if (password_verify($password, $user['password'])) {
+    if (password_verify($password, $user['password_hash'])) {
         echo json_encode([
             'success' => true,
             'userId' => $user['id'],

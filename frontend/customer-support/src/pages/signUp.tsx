@@ -55,10 +55,19 @@ export default function SignUpPage() {
         body: JSON.stringify({ firstName, lastName, username, email, password }),
       });
 
-      console.log("Response:", response);
+      const data = await response.json();
 
-      if(response.ok){
+
+      console.log("Response data:", data);  
+
+      if(data.success){
+
+        console.log("Registration successful:", data);
+
         navigate('/');
+      }else{
+
+        console.log("Registration failed:", response);
       }
 
         // reset form

@@ -1,5 +1,7 @@
 <?php
 
+
+
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json");
 header("Access-Control-Allow-Methods: POST");
@@ -12,13 +14,16 @@ require_once "../../config/db.php";
 // Get JSON data from frontend
 $data = json_decode(file_get_contents("php://input"), true);
 
-$first_name = trim($data['first_name'] ?? '');
-$last_name  = trim($data['last_name'] ?? '');
+$first_name = trim($data['firstName'] ?? '');
+$last_name  = trim($data['lastName'] ?? '');
 $email      = trim($data['email'] ?? '');
 $password   = $data['password'] ?? '';
+$username   = trim($data['username'] ?? '');
+
+
 
 // Simple validation
-if (!$first_name || !$last_name || !$email || !$password) {
+if (!$first_name || !$last_name || !$email || !$password || !$username) {
     echo json_encode(['success' => false, 'message' => 'All fields are required']);
     exit;
 }
@@ -29,7 +34,7 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 }
 
 // Check if email already exists
-$sql = "SELECT id FROM users WHERE email = ?";
+$sql = "SELECT * FROM users WHERE email = ?";
 $stmt = mysqli_prepare($conn, $sql);
 mysqli_stmt_bind_param($stmt, "s", $email);
 mysqli_stmt_execute($stmt);
@@ -45,11 +50,11 @@ mysqli_stmt_close($stmt);
 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
 // Prepare INSERT query
-$sql = "INSERT INTO users (first_name, last_name, email, password, created_at, updated_at)
-        VALUES (?, ?, ?, ?, NOW(), NOW())";
+$sql = "INSERT INTO users (first_name, last_name, email, password_hash, created_at, updated_at,username)
+        VALUES (?, ?, ?, ?, NOW(), NOW(),?)";
 
 $stmt = mysqli_prepare($conn, $sql);
-mysqli_stmt_bind_param($stmt, "ssss", $first_name, $last_name, $email, $hashed_password);
+mysqli_stmt_bind_param($stmt, "sssss", $first_name, $last_name, $email, $hashed_password,$username);
 
 // Execute and check
 if (mysqli_stmt_execute($stmt)) {

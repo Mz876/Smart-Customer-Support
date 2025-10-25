@@ -45,6 +45,8 @@ export default function SignInPage() {
  
     const data = await response.json();
 
+    console.log("Response data:", data);
+
     if (!response.ok || !data.success) {
 
       console.log("Error data:", data);
