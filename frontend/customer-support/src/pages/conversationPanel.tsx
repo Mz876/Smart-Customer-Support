@@ -80,6 +80,7 @@ export default function ChatPanel() {
          body: JSON.stringify(payload)
       });
       const data = await res.json();
+      console.log("Chatbot response data:", data);
       const agentMsg: Message = { id: `m-${Date.now()}-r`, sender: 'agent', text: data.reply, time: Date.now() };
       setConversations(cvs => cvs.map(c => c.id === activeId ? { ...c, messages: [...c.messages, agentMsg], lastUpdated: Date.now() } : c));
     } catch (err) {

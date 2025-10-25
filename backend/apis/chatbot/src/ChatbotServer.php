@@ -1,4 +1,5 @@
 <?php
+
 require __DIR__ . '/../vendor/autoload.php';
 
 use React\EventLoop\Factory;
@@ -24,59 +25,119 @@ $mysql = $mysqlFactory->createLazyConnection("$user:$pass@$host:$port/$db");
 // Load env
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
-$apiKey = $_ENV['OPENAI_API_KEY'];
+$apiKey = $_ENV['GEMINI_API_KEY']; // Add GEMINI_API_KEY to your .env file
 
 // Async HTTP client
 $browser = new Browser($loop);
 
 $server = new HttpServer(function (ServerRequestInterface $request) use ($mysql, $browser, $apiKey) {
+    
+    // ✅ CORS Headers - Handle preflight OPTIONS request
+    $corsHeaders = [
+        'Access-Control-Allow-Origin' => '*',
+        'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers' => 'Content-Type, Authorization',
+        'Content-Type' => 'application/json'
+    ];
+
+    // Handle OPTIONS preflight request
+    if ($request->getMethod() === 'OPTIONS') {
+        return new Response(200, $corsHeaders, '');
+    }
+
     $data = json_decode((string)$request->getBody(), true);
     $userMessage = $data['message'] ?? '';
-    $userId = $data['user_id'] ?? null; // assuming frontend sends user_id
+    $userId = $data['user_id'] ?? null;
 
     if (!$userMessage) {
-        return new Response(400, ['Content-Type' => 'application/json'], json_encode(['error' => 'Message is required']));
+        return new Response(
+            400, 
+            $corsHeaders, 
+            json_encode(['error' => 'Message is required'])
+        );
     }
 
     // 1️⃣ Insert question
     $insertQuestion = $mysql->query(
-        "INSERT INTO questions (user_id, content, created_at) VALUES (?, ?, NOW())",
+        "INSERT INTO questions (user_id, message, created_at) VALUES (?, ?, NOW())",
         [$userId, $userMessage]
-    )->then(function ($result) use ($mysql, $browser, $userMessage, $apiKey) {
+    )->then(function ($result) use ($mysql, $browser, $userMessage, $apiKey, $corsHeaders) {
 
-        $questionId = $result->insertId; // get the auto-generated question ID
+        $questionId = $result->insertId;
+        
+        error_log("🔍 Processing question ID: $questionId");
 
-        // 2️⃣ Call OpenAI API
+        // 2️⃣ Call Google Gemini API (FREE!) - Using the exact format from curl
+        $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent";
+        
         $apiCall = $browser->post(
-            'https://api.openai.com/v1/chat/completions',
+            $apiUrl,
             [
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $apiKey
+                'x-goog-api-key' => $apiKey  // ⚠️ Note: Using x-goog-api-key header instead of query param
             ],
             json_encode([
-                'model' => 'gpt-3.5-turbo',
-                'messages' => [['role' => 'user', 'content' => $userMessage]]
+                'contents' => [
+                    [
+                        'parts' => [
+                            ['text' => $userMessage]
+                        ]
+                    ]
+                ]
             ])
         );
 
-        return $apiCall->then(function ($response) use ($mysql, $questionId) {
-            $apiData = json_decode((string)$response->getBody(), true);
+        return $apiCall->then(function ($response) use ($mysql, $questionId, $corsHeaders, $userMessage) {
 
-            // Extract AI message
-            $aiMessage = $apiData['choices'][0]['message']['content'] ?? 'No response';
+            $status = $response->getStatusCode();
+            $body = (string)$response->getBody();
+
+            error_log("📨 Gemini Response Status: $status");
+
+            if ($status !== 200) {
+                error_log("❌ Gemini API Error: Status $status, Response: $body");
+                
+                $errorData = json_decode($body, true);
+                $errorMessage = $errorData['error']['message'] ?? 'Unknown error';
+                
+                return new Response(
+                    500,
+                    $corsHeaders,
+                    json_encode([
+                        'error' => "AI API Error (HTTP $status)",
+                        'message' => $errorMessage,
+                        'details' => $body
+                    ])
+                );
+            }
+
+            $apiData = json_decode($body, true);
+
+            // Extract AI message from Gemini response (exact structure from curl)
+            $aiMessage = $apiData['candidates'][0]['content']['parts'][0]['text'] ?? 'No response';
+            
+            error_log("✅ AI Response received: " . substr($aiMessage, 0, 50) . "...");
 
             // 3️⃣ Insert AI response into answers table
             return $mysql->query(
                 "INSERT INTO answers (question_id, message, created_at) VALUES (?, ?, NOW())",
                 [$questionId, $aiMessage]
-            )->then(function () use ($aiMessage) {
+            )->then(function () use ($aiMessage, $corsHeaders) {
                 return new Response(
                     200,
-                    ['Content-Type' => 'application/json'],
+                    $corsHeaders,
                     json_encode(['reply' => $aiMessage])
                 );
             });
         });
+    })->otherwise(function ($error) use ($corsHeaders) {
+        // Handle errors
+        error_log("❌ Server Error: " . $error->getMessage());
+        return new Response(
+            500,
+            $corsHeaders,
+            json_encode(['error' => 'Server error: ' . $error->getMessage()])
+        );
     });
 
     return $insertQuestion;
@@ -85,6 +146,5 @@ $server = new HttpServer(function (ServerRequestInterface $request) use ($mysql,
 $socket = new SocketServer('127.0.0.1:8080', [], $loop);
 $server->listen($socket);
 
-echo "ReactPHP Chatbot API running at http://127.0.0.1:8080\n";
-
+ 
 $loop->run();
