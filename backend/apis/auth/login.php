@@ -1,11 +1,14 @@
 <?php
+
+// Include DB connection
+require_once '../../config/db.php';
+
+
 // Allow React (frontend) on a different port to access
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json");
 header("Access-Control-Allow-Methods: POST");
 
-// Include DB connection
-require_once '../../config/db.php';
 
 // Get JSON POST body
 $data = json_decode(file_get_contents("php://input"), true);
