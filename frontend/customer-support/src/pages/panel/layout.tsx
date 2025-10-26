@@ -43,8 +43,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <div className="mx-auto bg-white rounded-2xl shadow-lg overflow-hidden grid grid-cols-1 md:grid-cols-4 h-[90vh]">
+    <div className="min-h-screen bg-red-500">
+      <div className="mx-auto bg-white shadow-lg overflow-hidden grid grid-cols-1 md:grid-cols-4 h-[100vh]">
         <Sidebar
           conversations={conversations}
           activeId={activeId}
