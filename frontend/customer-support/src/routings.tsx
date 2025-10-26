@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import SignInPage from './pages/signIn.tsx';
 import SignUpPage from './pages/signUp.tsx';
 import ProfilePage from './pages/profile.tsx'; 
-import ConversationPanel from './pages/conversationPanel.tsx';
+import ConversationPanel from './pages/panel/conversationPanel.tsx';
 
 export default function Routings() {
   return (
