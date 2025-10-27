@@ -50,8 +50,8 @@ mysqli_stmt_close($stmt);
 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
 // Prepare INSERT query
-$sql = "INSERT INTO users (first_name, last_name, email, password_hash, created_at, updated_at,username)
-        VALUES (?, ?, ?, ?, NOW(), NOW(),?)";
+$sql = "INSERT INTO users (first_name, last_name, email, password_hash, created_at,username)
+        VALUES (?, ?, ?, ?, NOW(),?)";
 
 $stmt = mysqli_prepare($conn, $sql);
 mysqli_stmt_bind_param($stmt, "sssss", $first_name, $last_name, $email, $hashed_password,$username);
